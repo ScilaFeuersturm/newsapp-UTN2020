@@ -12,6 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Models;
 
 
@@ -42,6 +47,44 @@ namespace API
 
              services.AddDbContext<NewsContext>(opt =>
                opt.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+             
+
+                    //===== Add Identity ========
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+        .AddEntityFrameworkStores<NewsContext>()
+        .AddDefaultTokenProviders();
+
+
+
+        // ===== Add Jwt Authentication ========
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
+            services
+            .AddAuthentication(options =>
+            {
+            options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(cfg =>
+            {
+            cfg.RequireHttpsMetadata = false;
+            cfg.SaveToken = true;
+            cfg.TokenValidationParameters = new
+            TokenValidationParameters
+            {
+            ValidIssuer = Configuration["JwtIssuer"],
+            ValidAudience = Configuration["JwtIssuer"],
+            IssuerSigningKey = new
+            SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])
+            ),
+            ClockSkew = TimeSpan.Zero 
+            };
+            });
+
+
 
 
 
