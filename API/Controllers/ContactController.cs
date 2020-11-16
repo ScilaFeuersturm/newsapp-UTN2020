@@ -11,6 +11,7 @@ using DTOS;
 namespace Controllers{
 
 [ApiController]
+[Route("api/contact")]
 public class ContactController : ControllerBase
   {
     private readonly NewsContext _context;

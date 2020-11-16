@@ -35,19 +35,10 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>{
-                options.AddDefaultPolicy(
-                    builder => {
-                        builder.AllowAnyOrigin()
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    }
-                );
-            });
 
-             services.AddDbContext<NewsContext>(opt =>
+        services.AddDbContext<NewsContext>(opt =>
                opt.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
-             
+
 
                     //===== Add Identity ========
         services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -55,38 +46,39 @@ namespace API
         .AddDefaultTokenProviders();
 
 
-
-        // ===== Add Jwt Authentication ========
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); 
+             // ===== Add Jwt Authentication ========
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
             services
-            .AddAuthentication(options =>
-            {
-            options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultScheme =
-            JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(cfg =>
-            {
-            cfg.RequireHttpsMetadata = false;
-            cfg.SaveToken = true;
-            cfg.TokenValidationParameters = new
-            TokenValidationParameters
-            {
-            ValidIssuer = Configuration["JwtIssuer"],
-            ValidAudience = Configuration["JwtIssuer"],
-            IssuerSigningKey = new
-            SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])
-            ),
-            ClockSkew = TimeSpan.Zero 
-            };
-            });
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                })
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.SaveToken = true;
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = Configuration["JwtIssuer"],
+                        ValidAudience = Configuration["JwtIssuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
+                        ClockSkew = TimeSpan.Zero // remove delay of token when expire
+                    };
+                });
 
 
-
-
+                services.AddCors(options =>{
+                                options.AddDefaultPolicy(
+                                    builder => {
+                                        builder.AllowAnyOrigin()
+                                            .AllowAnyMethod()
+                                            .AllowAnyHeader();
+                                    }
+                                );
+                            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -111,6 +103,7 @@ namespace API
             app.UseCors();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {
