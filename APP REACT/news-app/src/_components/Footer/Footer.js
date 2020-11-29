@@ -4,6 +4,9 @@ import facebook_icon from '../../assets/icons/facebook_icon.png'
 import Instagram_icon from '../../assets/icons/Instagram_icon.png'
 import twitter_icon from '../../assets/icons/twitter_icon.png'
 
+
+/*Diseño: Agregar redes sociales y mail y dirección ficticia en el footer. Crear un logo, footer,navbar o en los dos?
+Ver como queda*/
 const Footer = () => (
   <div className="footer">
     <div>

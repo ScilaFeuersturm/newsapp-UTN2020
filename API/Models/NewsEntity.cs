@@ -9,7 +9,7 @@ namespace Models
         public string Title {set;get;}
         public string Subtitle{set;get;}
         public string Body{set;get;}
-        public string SignedBy{set;get;}
-        public string DateCreated{set;get;}
+        public ApplicationUser Responsible { get; set; }
+
     }    
 }

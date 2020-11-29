@@ -1,17 +1,20 @@
 import React from 'react';
 import { Link, Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import "../Navbar/Navbar.css";
+import PublicRoute from "../../_components/Routes/PublicRoute";
+import {Login,Register,News,HomePage} from "../../pages/index";
 
+/*Ver cómo se puede mejorar esto. 
+Hay links que solamente van a poder mostrarse si se está logueado, se puede agregar un link adicional? Consultar*/
 
-
-export default function NavigationBar(){
-    return(
+const NavigationBar = () => {
+    return(  
     <div className="topnav">
       <Link to="/news">Noticias</Link>
       <Link to="/contact">Contacto</Link>
       <Link to="/login">Login</Link>
-      <Link to="/manage-news">Manage News</Link>
-      <Link to="/manage-contact">Manage Contact</Link>
-  </div>
+    </div>
     );
 }
+
+export default NavigationBar;

@@ -14,6 +14,9 @@ namespace Models
 
         public DbSet<ContactEntity> ContactItems { get; set; }
         public DbSet<NewsEntity> NewsItems { get; set; }
+
+        public DbSet<NewsList> NewsLists { get; set; }
+
     
     }
 }

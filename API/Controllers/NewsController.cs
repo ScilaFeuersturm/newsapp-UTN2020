@@ -5,69 +5,74 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Models;
 using DTOS;
+using Services;
 
 namespace Controllers{
 
+[Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("api/news")]
 public class NewsController : ControllerBase
   {
-    private readonly NewsContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    private readonly INewsItemService _newsItemService;
+
     
-    public NewsController(NewsContext context)
+    public NewsController(UserManager<ApplicationUser> userManager,
+                                INewsItemService newsItemService)
     {
-        _context = context;
+            _userManager = userManager;
+            _newsItemService = newsItemService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<NewsDTO>>> getNewsList()
     {
-        return await _context.NewsItems.Select(item => NewsToDTO(item)).ToListAsync();
+        var todoItems = await _newsItemService.GetAllAsync();
+            return todoItems.Select(item => NewsToDTO(item)).ToList();
+   
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<NewsDTO>> getNews(long id)
     {
-        var news = await _context.NewsItems.FindAsync(id);
-        if(news == null)
-        {
-            return NotFound();
-        }
+            var todoItem = await _newsItemService.GetAsync(id);
 
-            return NewsToDTO(news);
+            if (todoItem == null)
+            {
+                return NotFound();
+            }
+
+
+            return NewsToDTO(todoItem);
 
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutNews(long id, NewsEntity newsToCreate)
+    public async Task<IActionResult> PutNews(long id, NewsDTO newsToCreate)
     {
-        if(id != newsToCreate.Id)
-        {
-            return BadRequest();
-        }
-
-        var news = await _context.NewsItems.FindAsync(id);
-        if(news == null)
-        {
-            return NotFound();
-        }
-
-        news.Image = newsToCreate.Image;
-        news.Title = newsToCreate.Title;
-        news.Subtitle = newsToCreate.Subtitle;
-        news.Body = newsToCreate.Body;
-        news.SignedBy = newsToCreate.SignedBy;
-        news.DateCreated = newsToCreate.DateCreated;
-
-        try
+             if (id != newsToCreate.Id)
             {
-                await _context.SaveChangesAsync();
+                return BadRequest();
             }
-            catch (DbUpdateConcurrencyException) when (!NewsExists(id))
+
+            try
             {
-                return NotFound();
+                await _newsItemService.UpdateAsync(id, newsToCreate);            
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (InvalidOperationException e)
+            {
+                return NotFound(e.Message);
             }
 
             return NoContent();
@@ -75,50 +80,43 @@ public class NewsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<NewsDTO>> PostNews(CreateNewsDTO CreatedNews)
+    public async Task<ActionResult<NewsDTO>> PostNews(CreateNewsDTO newsItemDTO)
     {
-        var news = new NewsEntity
-        {
-            Image = CreatedNews.Image,
-            Title = CreatedNews.Title,
-            Subtitle = CreatedNews.Subtitle,
-            Body = CreatedNews.Body,
-            SignedBy = CreatedNews.SignedBy,
-            DateCreated = CreatedNews.DateCreated,
-        };
+       ApplicationUser appUser =null;
+            
+            if(newsItemDTO.UserId !=null)
+            {
+                appUser = await _userManager.FindByIdAsync(newsItemDTO.UserId);
 
-        _context.NewsItems.Add(news);
-        await _context.SaveChangesAsync();
+                if(appUser is null)
+                {
+                    return BadRequest("Invalid userId");
+                }
 
-        return CreatedAtAction(
-             nameof(getNews),
-            new { id = news.Id },
-            news
-        );
+            }
 
+            var newsItem = await _newsItemService.CreateAsync(newsItemDTO, appUser);
+
+            return CreatedAtAction("GetNewsItem", new { id = newsItem.Id }, NewsToDTO(newsItem));
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult<NewsEntity>> DeleteForm(long id)
     {
-        var news = await _context.NewsItems.FindAsync(id);
-        if(news == null)
-        {
-            return NotFound();
-        }
-        _context.NewsItems.Remove(news);
-        await _context.SaveChangesAsync();
+        try
+            {
+                await _newsItemService.DeleteAsync(id);            
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
 
-        return NoContent();
-    }
-    private bool NewsExists(long id)
-    {
-        return _context.NewsItems.Any(e => e.Id == id);
+            return NoContent();
     }
     public static NewsDTO NewsToDTO(NewsEntity newsItem) =>
                 new NewsDTO
                 {
-                Id = newsItem.Id,
                 Image = newsItem.Image,
                 Title = newsItem.Title,
                 Subtitle = newsItem.Subtitle,

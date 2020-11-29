@@ -18,6 +18,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Models;
+using Services;
+
 
 
 
@@ -38,6 +40,9 @@ namespace API
 
         services.AddDbContext<NewsContext>(opt =>
                opt.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+
+            // Se agregan los servicios
+             services.AddScoped<INewsItemService, NewsItemService>();
 
 
                     //===== Add Identity ========
