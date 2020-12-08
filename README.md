@@ -1,2 +1,2 @@
 # newsapp-UTN2020
-Proyecto final de Diplomatura en Programación .Net. 
+Proyecto React https://github.com/ScilaFeuersturm/react-newsapp-UTN2020.git
