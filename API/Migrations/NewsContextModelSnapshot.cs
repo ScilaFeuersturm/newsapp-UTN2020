@@ -211,9 +211,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Models.ContactEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CompleteName")
                         .HasColumnType("text");
@@ -234,21 +234,21 @@ namespace API.Migrations
 
             modelBuilder.Entity("Models.NewsEntity", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Body")
                         .HasColumnType("text");
 
-                    b.Property<string>("DateCreated")
+                    b.Property<long?>("NewsListId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Photo")
                         .HasColumnType("text");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SignedBy")
-                        .HasColumnType("text");
+                    b.Property<string>("ResponsibleId")
+                        .HasColumnType("varchar(767)");
 
                     b.Property<string>("Subtitle")
                         .HasColumnType("text");
@@ -258,7 +258,25 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("NewsListId");
+
+                    b.HasIndex("ResponsibleId");
+
                     b.ToTable("NewsItems");
+                });
+
+            modelBuilder.Entity("Models.NewsList", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Category")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NewsLists");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -310,6 +328,17 @@ namespace API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Models.NewsEntity", b =>
+                {
+                    b.HasOne("Models.NewsList", null)
+                        .WithMany("NewsItem")
+                        .HasForeignKey("NewsListId");
+
+                    b.HasOne("Models.ApplicationUser", "Responsible")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleId");
                 });
 #pragma warning restore 612, 618
         }

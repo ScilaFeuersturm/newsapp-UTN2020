@@ -14,7 +14,6 @@ using Services;
 
 namespace Controllers{
 
-[Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 [Route("api/news")]
 public class NewsController : ControllerBase
@@ -40,7 +39,7 @@ public class NewsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<NewsDTO>> getNews(long id)
+    public async Task<ActionResult<NewsDTO>> getNewsItem(long id)
     {
             var todoItem = await _newsItemService.GetAsync(id);
 
@@ -48,7 +47,6 @@ public class NewsController : ControllerBase
             {
                 return NotFound();
             }
-
 
             return NewsToDTO(todoItem);
 
@@ -82,7 +80,7 @@ public class NewsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<NewsDTO>> PostNews(CreateNewsDTO newsItemDTO)
     {
-       ApplicationUser appUser =null;
+       ApplicationUser appUser = null;
             
             if(newsItemDTO.UserId !=null)
             {
@@ -117,7 +115,8 @@ public class NewsController : ControllerBase
     public static NewsDTO NewsToDTO(NewsEntity newsItem) =>
                 new NewsDTO
                 {
-                Image = newsItem.Image,
+                Id= newsItem.Id,
+                Photo = newsItem.Photo,
                 Title = newsItem.Title,
                 Subtitle = newsItem.Subtitle,
                 Body = newsItem.Body

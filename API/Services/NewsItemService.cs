@@ -37,7 +37,7 @@ namespace Services
                 throw new ArgumentException("item not found");
             }
             
-            item.Image = dto.Image;
+            item.Photo = dto.Photo;
             item.Title = dto.Title;
             item.Subtitle = dto.Subtitle;
             item.Body = dto.Body;
@@ -56,7 +56,7 @@ namespace Services
         {
             var newsItem = new NewsEntity
             {
-                Image = dto.Image,
+                Photo = dto.Photo,
                 Title = dto.Title,
                 Subtitle = dto.Subtitle,
                 Body = dto.Body,

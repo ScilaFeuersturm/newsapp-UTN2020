@@ -4,11 +4,11 @@ namespace Models
 {
     public class NewsEntity
     {
-        public int Id {set;get;}
-        public string Image {set;get;}
+        public long Id {set;get;}
+        public string Photo {set;get;}
         public string Title {set;get;}
-        public string Subtitle{set;get;}
-        public string Body{set;get;}
+        public string Subtitle {set;get;} 
+        public string Body {set;get;}
         public ApplicationUser Responsible { get; set; }
 
     }    

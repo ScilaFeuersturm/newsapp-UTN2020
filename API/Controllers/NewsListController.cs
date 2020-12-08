@@ -24,14 +24,12 @@ namespace Controllers
             _context = context;
         }
 
-        // GET: api/TodoList
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NewsList>>> GetNewsLists()
         {
             return await _context.NewsLists.Include(x => x.NewsItem).ToListAsync();
         }
 
-        // GET: api/TodoList/5
         [HttpGet("{id}")]
         public async Task<ActionResult<NewsList>> GetNewsList(long id)
         {
@@ -47,9 +45,7 @@ namespace Controllers
             return newsItemList;
         }
 
-        // PUT: api/TodoList/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutNewsItemList(long id, NewNewsListDTO newsItemListDTO)
         {
@@ -74,9 +70,7 @@ namespace Controllers
             return NoContent();
         }
 
-        // POST: api/TodoList
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+
         [HttpPost]
         public async Task<ActionResult<NewsList>> PostTodoItemList(NewNewsListDTO newNewsListDTO)
         {
@@ -89,7 +83,7 @@ namespace Controllers
             return CreatedAtAction("GetNewsList", new { id = newsItemList.Id }, newsItemList);
         }
 
-        // DELETE: api/TodoList/5
+    
         [HttpDelete("{id}")]
         public async Task<ActionResult<NewsList>> DeleteNewsItemList(long id)
         {
@@ -123,7 +117,7 @@ namespace Controllers
 
             var newsItem = new NewsEntity
             {
-                Image= newsItemDTO.Image,
+                Photo= newsItemDTO.Photo,
                 Title= newsItemDTO.Title,
                 Subtitle= newsItemDTO.Subtitle,
                 Body= newsItemDTO.Body
@@ -183,7 +177,7 @@ namespace Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}/todos/{newsId}")]
+        [HttpDelete("{id}/news/{newsId}")]
         public async Task<IActionResult> RemoveNewsItemFromList(long id, long newsId)
         {
             

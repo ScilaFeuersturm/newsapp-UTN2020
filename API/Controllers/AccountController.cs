@@ -76,15 +76,15 @@ namespace Controllers
         }
 
         [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
-        [HttpGet("{id}/todos")]
+        [HttpGet("{id}/news")]
         public async Task<ActionResult<IEnumerable<NewsDTO>>> GetNewsItemsByUser(string id)
         {
             return await _context.NewsItems.Where(i => i.Responsible.Id == id)
                                             .Select(item => ItemToDTO(item)).ToListAsync();
         }
         [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPost("{id}/todos/{todoId}")]
-        public async Task<IActionResult> AssignResponsibleToItem(string id, long todoId)
+        [HttpPost("{id}/news/{itemId}")]
+        public async Task<IActionResult> AssignResponsibleToItem(string id, long itemId)
         {
 
             var appUser = await _userManager.FindByIdAsync(id);
@@ -93,7 +93,7 @@ namespace Controllers
                 return NotFound("user not found");
             }
 
-            var newsItem = await _context.NewsItems.FindAsync(todoId);
+            var newsItem = await _context.NewsItems.FindAsync(itemId);
             if (newsItem == null)
             {
                 return NotFound("news item not found");
@@ -107,7 +107,7 @@ namespace Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!NewsItemExists(todoId))
+                if (!NewsItemExists(itemId))
                 {
                     return NotFound("todo item not found");
                 }
@@ -118,8 +118,8 @@ namespace Controllers
         }
 
         [Authorize(AuthenticationSchemes=JwtBearerDefaults.AuthenticationScheme)]
-        [HttpDelete("{id}/todos/{todoId}")]
-        public async Task<IActionResult> UnnassignResponsibleFromItem(string id, long todoId)
+        [HttpDelete("{id}/news/{itemId}")]
+        public async Task<IActionResult> UnnassignResponsibleFromItem(string id, long itemId)
         {
 
             var appUser = await _userManager.FindByIdAsync(id);
@@ -128,7 +128,7 @@ namespace Controllers
                 return NotFound("user not found");
             }
 
-            var newsItem = await _context.NewsItems.Include(i => i.Responsible).FirstOrDefaultAsync(t => t.Id == todoId);
+            var newsItem = await _context.NewsItems.Include(i => i.Responsible).FirstOrDefaultAsync(t => t.Id == itemId);
             if (newsItem == null)
             {
                 return NotFound("todo item not found");
@@ -147,7 +147,7 @@ namespace Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!NewsItemExists(todoId))
+                if (!NewsItemExists(itemId))
                 {
                     return NotFound("todo item not found");
                 }
@@ -162,7 +162,7 @@ namespace Controllers
                 new NewsDTO
                 {
                     Id = newsItem.Id,
-                    Image = newsItem.Image,
+                    Photo = newsItem.Photo,
                     Title = newsItem.Title,
                     Subtitle = newsItem.Subtitle,
                     Body = newsItem.Body,
